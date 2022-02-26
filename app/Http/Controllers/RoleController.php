@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Custom\ShortResponse;
+use App\Models\Role;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class RoleController extends Controller
+{
+
+    public function roles (): JsonResponse
+    {
+        return ShortResponse::json(true, 'Roles retrieved...', Role::all());
+    }
+
+    public function usersByRole (Role $role): JsonResponse
+    {
+            return ShortResponse::json(true, 'Users by roles retrieved...', $role->users);
+    }
+
+    public function create (Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'access_level' => 'required|integer|min:1|max:200'
+        ]);
+        return ShortResponse::json(true, 'Role created!', Role::create($data), 201);
+    }
+
+    public function update (Request $request, int $id): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'access_level' => 'nullable|integer|min:1|max:200'
+        ]);
+
+        return ShortResponse::update(new Role(), $id, $data);
+
+    }
+
+    public function delete (int $id) : JsonResponse
+    {
+        return ShortResponse::delete(new Role(), $id);
+    }
+
+}
