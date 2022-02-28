@@ -45,7 +45,8 @@ class UserController extends Controller
             'role_id' => 'required|integer'
         ]);
 
-        return ShortResponse::update(new User(), $user->id, $data);
+        $user->update($data);
+        return ShortResponse::json(true, 'User role updated', $user);
     }
 
     public function update (Request $request, User $user): JsonResponse
@@ -58,7 +59,8 @@ class UserController extends Controller
             'email' => 'nullable|email|unique:users,email',
         ]);
 
-        return ShortResponse::update(new User(), $user->id, $data);
+        $user->update($data);
+        return ShortResponse::json(true, 'User updated', $user);
 
     }
 
@@ -74,18 +76,13 @@ class UserController extends Controller
 
 
         unset($data['old_password']);
-        return ShortResponse::update(new User(), $user->id, $data);
+        $user->update($data);
+        return ShortResponse::json(true, 'User password updated', $user);
     }
 
     public function delete (int $id): JsonResponse
     {
         return ShortResponse::delete(new User(), $id);
-    }
-
-
-    public static function userNotFound(): JsonResponse
-    {
-        return ShortResponse::json(false, 'User not found', null, 404);
     }
 
 }

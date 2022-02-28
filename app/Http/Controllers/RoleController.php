@@ -17,7 +17,7 @@ class RoleController extends Controller
 
     public function usersByRole (Role $role): JsonResponse
     {
-            return ShortResponse::json(true, 'Users by roles retrieved...', $role->users);
+        return ShortResponse::json(true, 'Users by roles retrieved...', $role->users);
     }
 
     public function create (Request $request): JsonResponse
@@ -29,14 +29,15 @@ class RoleController extends Controller
         return ShortResponse::json(true, 'Role created!', Role::create($data), 201);
     }
 
-    public function update (Request $request, int $id): JsonResponse
+    public function update (Request $request, Role $role): JsonResponse
     {
         $data = $request->validate([
             'name' => 'nullable|string|max:255',
             'access_level' => 'nullable|integer|min:1|max:200'
         ]);
 
-        return ShortResponse::update(new Role(), $id, $data);
+        $role->update($data);
+        return ShortResponse::json(true, 'Role updated', $role);
 
     }
 
