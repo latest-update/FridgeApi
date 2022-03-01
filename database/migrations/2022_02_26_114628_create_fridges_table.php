@@ -17,8 +17,8 @@ class CreateFridgesTable extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('userId_open')->nullable();
-            $table->foreignId('location_id');
-            $table->foreignId('mode_id')->default(3);
+            $table->foreignId('location_id')->unique()->unsigned();                //     when errors with migration occurs
+            $table->foreignId('mode_id')->default(3)->unsigned();          //           check there
             $table->string('token')->nullable();
 
             $table->foreign('userId_open')->references('id')->on('users');

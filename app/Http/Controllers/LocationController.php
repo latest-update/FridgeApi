@@ -15,6 +15,11 @@ class LocationController extends Controller
         return ShortResponse::json(true, 'Locations are retrieved...', Location::all());
     }
 
+    public function withFridge (): JsonResponse
+    {
+        return ShortResponse::json(true, 'Locations with fridges are retrieved...', Location::with('fridge')->get());
+    }
+
     public function locationByCity (string $city): JsonResponse
     {
         return ShortResponse::json(true, 'Location by city retrieved...',
@@ -31,7 +36,8 @@ class LocationController extends Controller
             'city' => 'required|string|max:255',
             'district' => 'required|string|max:255',
             'name' => 'required|string|max:255',
-            'coordinates' => 'required|string|max:255'
+            'latitude' => 'required|string|max:255',
+            'longitude' => 'required|string|max:255'
         ]);
 
         return ShortResponse::json(true, 'Role created!', Location::create($data), 201);
@@ -43,7 +49,8 @@ class LocationController extends Controller
             'city' => 'nullable|string|max:255',
             'district' => 'nullable|string|max:255',
             'name' => 'nullable|string|max:255',
-            'coordinates' => 'nullable|string|max:255'
+            'latitude' => 'required|string|max:255',
+            'longitude' => 'required|string|max:255'
         ]);
 
         $location->update($data);

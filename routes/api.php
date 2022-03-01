@@ -1,9 +1,13 @@
 <?php
 
 use App\Http\Controllers\Custom\ShortResponse;
+use App\Http\Controllers\FridgeController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ModeController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WarehouseController;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -55,15 +59,61 @@ Route::controller(UserController::class)->group(function () {
 /*
  *
  *
- * Location of the fridge routes
+ * Fridge routes
  *
  *
  */
 
+// Location
 Route::controller(LocationController::class)->group(function () {
     Route::get('/locations', 'index');
-    Route::get('/locations/{city}', 'locationByCity');
+    Route::get('/locations/fridges', 'withFridge');
+    Route::get('/locations/{city}', 'locationByCity')->missing(fn() => ShortResponse::errorMessage('Location not found'));
     Route::post('/locations', 'create');
-    Route::patch('/locations/{location}', 'update')->whereNumber('id')->missing(fn() => ShortResponse::errorMessage('Location not found'));
-    Route::delete('/locations/{location}', 'delete')->whereNumber('id')->missing(fn() => ShortResponse::errorMessage('Location not found'));
+    Route::patch('/locations/{location}', 'update')->whereNumber('location')->missing(fn() => ShortResponse::errorMessage('Location not found'));
+    Route::delete('/locations/{location}', 'delete')->whereNumber('location')->missing(fn() => ShortResponse::errorMessage('Location not found'));
 });
+
+// Fridge mode
+Route::controller(ModeController::class)->group(function () {
+    Route::get('/modes', 'index');
+    Route::get('/modes/{id}', 'allFridgeByMode')->whereNumber('id')->missing(fn() => ShortResponse::errorMessage('Mode not found'));
+    Route::post('/modes', 'create');
+    Route::patch('/modes/{mode}', 'update')->whereNumber('mode')->missing(fn() => ShortResponse::errorMessage('Mode not found'));
+    Route::delete('/modes/{mode}', 'delete')->whereNumber('mode')->missing(fn() => ShortResponse::errorMessage('Mode not found'));
+});
+
+// Fridge
+Route::controller(FridgeController::class)->group(function () {
+    Route::get('/fridges', 'index');
+    Route::get('/fridges/locations', 'withLocation');
+    Route::get('/fridges/locations/{fridge:location_id}', 'byLocationId')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge not found'));
+    Route::get('/fridges/{fridge}', 'fridgeById')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge not found'));
+    Route::post('/fridges', 'create');
+    Route::patch('/fridges/{fridge}', 'update')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge not found'));
+    Route::delete('/fridges/{fridge}', 'delete')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge not found'));
+});
+
+
+/*
+ *
+ *
+ * Products route
+ *
+ *
+ */
+
+Route::controller(ProductController::class)->group(function () {
+    Route::get('/products', 'index');
+    Route::get('/products/{product}', 'productById')->whereNumber('product')->missing(fn() => ShortResponse::errorMessage('Product not found'));
+    Route::post('/products', 'create');
+    Route::patch('/products/{product}', 'update')->whereNumber('product')->missing(fn() => ShortResponse::errorMessage('Product not found'));
+    Route::delete('/product{product}', 'delete')->missing(fn() => ShortResponse::errorMessage('Product not found'));;
+});
+
+Route::controller(WarehouseController::class)->group(function () {
+    Route::get('/warehouse/{id}', 'index')->whereNumber('id')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
+    Route::get('/warehouse/{warehouse}/info', 'indexIncludeInfo')->whereNumber('warehouse')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
+    Route::post('/warehouse', 'create');
+});
+
