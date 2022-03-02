@@ -19,6 +19,7 @@ class CreateWarehousesTable extends Migration
             $table->foreignId('fridge_id')->unsigned();
             $table->integer('count');
 
+            $table->unique(['product_id', 'fridge_id']);
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('fridge_id')->references('id')->on('fridges')->onDelete('cascade');
         });

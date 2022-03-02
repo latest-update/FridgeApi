@@ -10,14 +10,14 @@ use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
 {
-    public function index (int $id): JsonResponse
+    public function index (Fridge $fridge): JsonResponse
     {
-        return ShortResponse::json(true, 'Product are retrieved...', Fridge::find($id)->warehouse );
+        return ShortResponse::json(true, 'Fridge warehouse are retrieved...', $fridge->warehouse );
     }
 
-    public function indexIncludeInfo (int $id): JsonResponse
+    public function indexIncludeInfo (Fridge $fridge): JsonResponse
     {
-        return ShortResponse::json(true, 'Product are retrieved...', Fridge::find($id)->products()->get() );
+        return ShortResponse::json(true, 'Fridge warehouse retrieved...', $fridge->products()->get() );
     }
 
     public function create (Request $request): JsonResponse
@@ -28,7 +28,16 @@ class WarehouseController extends Controller
             '*.count' => 'required|integer'
         ]);
 
+        $fridge_id = $data[0]['fridge_id'];
+
         $data = Warehouse::upsert($data, ['product_id', 'fridge_id'], ['count']);
-        return ShortResponse::json(true, 'Product are retrieved...', $data);
+        Fridge::find($fridge_id)->warehouse()->where('count', '<=', 0)->delete();
+        return ShortResponse::json(true, 'Have done', $data);
+    }
+
+
+    public function fresh (Fridge $fridge): JsonResponse
+    {
+        return ShortResponse::json(true, 'Fridge warehouse was cleaned', $data->warehouse()->delete() );
     }
 }

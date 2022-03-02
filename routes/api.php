@@ -103,6 +103,7 @@ Route::controller(FridgeController::class)->group(function () {
  *
  */
 
+// Product
 Route::controller(ProductController::class)->group(function () {
     Route::get('/products', 'index');
     Route::get('/products/{product}', 'productById')->whereNumber('product')->missing(fn() => ShortResponse::errorMessage('Product not found'));
@@ -111,9 +112,15 @@ Route::controller(ProductController::class)->group(function () {
     Route::delete('/product{product}', 'delete')->missing(fn() => ShortResponse::errorMessage('Product not found'));;
 });
 
+// Fridge warehouse
 Route::controller(WarehouseController::class)->group(function () {
-    Route::get('/warehouse/{id}', 'index')->whereNumber('id')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
-    Route::get('/warehouse/{warehouse}/info', 'indexIncludeInfo')->whereNumber('warehouse')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
-    Route::post('/warehouse', 'create');
+    Route::get('/warehouse/{fridge:id}', 'index')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
+    Route::get('/warehouse/{fridge:id}/info', 'indexIncludeInfo')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
+    Route::post('/warehouse/', 'create');
+
+// Do comment route below in production mode
+    Route::delete('/warehouse/{fridge:id}/fresh', 'fresh')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
 });
+
+
 
