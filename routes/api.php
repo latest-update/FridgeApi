@@ -4,6 +4,7 @@ use App\Http\Controllers\Custom\ShortResponse;
 use App\Http\Controllers\FridgeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ModeController;
+use App\Http\Controllers\OperationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -122,5 +123,11 @@ Route::controller(WarehouseController::class)->group(function () {
     Route::delete('/warehouse/{fridge:id}/fresh', 'fresh')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
 });
 
+Route::controller(OperationController::class)->group(function () {
+    Route::get('/operations', 'index');
+    Route::get('/operations/user/{user:id}', 'byUserId')->whereNumber('user')->missing(fn() => ShortResponse::errorMessage('User not found'));
+    Route::get('/operations/detail/{operation:id}', 'operationDetail')->whereNumber('operation')->missing(fn() => ShortResponse::errorMessage('Operation not found'));
 
+    Route::post('/operations/fridge/{fridge:id}/new', 'createOperation')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge for create operation not found'));
+});
 
