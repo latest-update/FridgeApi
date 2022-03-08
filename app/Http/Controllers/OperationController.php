@@ -86,8 +86,8 @@ class OperationController extends Controller
         });
         Purchased_product::upsert($purchase->toArray(), []);
 
-//        $fridge->userId_open = null;
-//        $fridge->save();
+        $fridge->userId_open = null;
+        $fridge->save();
 
         $data = Warehouse::upsert($remainInFridge->toArray(), ['product_id', 'fridge_id'], ['count']);
         $fridge->warehouse()->where('count', '<=', 0)->delete();
