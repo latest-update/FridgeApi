@@ -15,18 +15,27 @@ use Illuminate\Validation\Rule;
 
 class OperationController extends Controller
 {
-    public function index (): JsonResponse
+    public function index (Request $request): JsonResponse
     {
-        return ShortResponse::json(true, 'All operations are retrieved...', Operation::all() );
+        if ( $request->user()->tokenCan('role-admin') )
+            return ShortResponse::json(true, 'All users operation retrieved...', Operation::all());
+
+        return ShortResponse::json(true, 'All operations are retrieved...', $request->user()->operations );
     }
 
-    public function byUserId (User $user): JsonResponse
+    public function byUserId (Request $request, User $user): JsonResponse
     {
+        if( $request->user()->id != $user->id and !$request->user()->tokenCan('role-admin') )
+            return ShortResponse::json(false, 'Trying to get other user information', [], 403);
+
         return ShortResponse::json(true, 'All operations by user are retrieved', $user->operations()->get());
     }
 
-    public function operationDetail (Operation $operation): JsonResponse
+    public function operationDetail (Request $request, Operation $operation): JsonResponse
     {
+        if( $request->user()->id != $operation->user()->id and !$request->user()->tokenCan('role-admin') )
+            return ShortResponse::json(false, 'Trying to change other user information', [], 403);
+
         return ShortResponse::json(true, 'All operations include product info are retrieved', $operation->products()->get());
     }
 

@@ -6,16 +6,20 @@ use App\Http\Controllers\Custom\ShortResponse;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    public function users (): JsonResponse
+    public function users (Request $request): JsonResponse
     {
-        return ShortResponse::json(true, 'Users retrieved...', User::all());
+        if ( $request->user()->tokenCan('role-admin') )
+            return ShortResponse::json(true, 'All users retrieved...', User::all());
+
+        return ShortResponse::json(true, 'User information retrieved',  $request->user());
     }
 
-    public function userById (User $userid): JsonResponse
+    public function userById (Request $request, User $userid): JsonResponse
     {
         return ShortResponse::json(true, 'User by id retrieved', $userid);
     }
@@ -25,7 +29,7 @@ class UserController extends Controller
         return ShortResponse::json(true, 'User by login retrieved', $user);
     }
 
-    public function create (Request $request): JsonResponse
+    public function register (Request $request): JsonResponse
     {
         $data = $request->validate([
             'name' => 'required|string|min:2|max:50',
@@ -51,6 +55,9 @@ class UserController extends Controller
 
     public function update (Request $request, User $user): JsonResponse
     {
+        if( $request->user()->id != $user->id and !$request->user()->tokenCan('role-admin') )
+            return ShortResponse::json(false, 'Trying to change other user information', [], 403);
+
         $data = $request->validate([
             'name' => 'nullable|string|min:2|max:50',
             'surname' => 'nullable|string|min:2|max:50',
@@ -66,6 +73,9 @@ class UserController extends Controller
 
     public function changePassword (Request $request, User $user): JsonResponse
     {
+        if( $request->user()->id != $user->id )
+            return ShortResponse::json(false, 'Trying to change other user information', [], 403);
+
         $data = $request->validate([
             'old_password' => ['required', Password::min(8)],
             'password' => ['required', Password::min(8)]
@@ -80,8 +90,11 @@ class UserController extends Controller
         return ShortResponse::json(true, 'User password updated', $user);
     }
 
-    public function delete (int $id): JsonResponse
+    public function delete (Request $request, int $id): JsonResponse
     {
+        if( $request->user()->id != $id and !$request->user()->tokenCan('ability:role-admin') )
+            return ShortResponse::json(false, 'Trying to delete other user', [], 403);
+
         return ShortResponse::delete(new User(), $id);
     }
 
