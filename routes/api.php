@@ -51,6 +51,7 @@ Route::controller(UserController::class)->group(function () {
     Route::get('/users/{user:login}', 'userByLogin')->whereAlpha('user')->middleware('auth:sanctum', 'ability:role-admin')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::get('/users/{userid:id}', 'userById')->whereNumber('userid')->middleware('auth:sanctum', 'ability:role-admin')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::post('/users/register', 'register');
+    Route::post('/users/login', 'login');
     Route::patch('/users/{user:id}/role', 'editRole')->whereNumber('user')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::patch('/users/{user:id}/edit', 'update')->whereNumber('user')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::patch('/users/{user:id}/password', 'changePassword')->whereNumber('user')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('User not found'));

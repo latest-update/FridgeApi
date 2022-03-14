@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Custom\Login;
 use App\Http\Controllers\Custom\ShortResponse;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -39,8 +40,24 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => ['required', Password::min(8)]
         ]);
+        $data['password'] = bcrypt($data['password']);
+        $user = User::create($data);
 
-        return ShortResponse::json(true, 'User created', User::create($data), 201);
+        $response['token'] = $user->createToken($user->login, ['role-user'])->plainTextToken;
+        $response['info'] = $user;
+
+        $user->remember_token = $response['token'];
+        $user->save();
+
+        return ShortResponse::json(true, 'User register successfully!', $response, 201);
+    }
+
+    public function login (Request $request): JsonResponse
+    {
+        if( Auth::attempt(['login' => $request->login, 'password' => $request->password ]) ){
+            return Login::in(Auth::user());
+        }
+        return ShortResponse::json(false, 'Not correct login / password', [], 201);
     }
 
     public function editRole (Request $request, User $user): JsonResponse
