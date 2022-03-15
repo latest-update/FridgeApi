@@ -128,7 +128,7 @@ Route::controller(WarehouseController::class)->group(function () {
 Route::controller(OperationController::class)->group(function () {
     Route::get('/operations', 'index')->middleware('auth:sanctum');
     Route::get('/operations/user/{user:id}', 'byUserId')->whereNumber('user')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('User not found'));
-    Route::get('/operations/detail/{operation:id}', 'operationDetail')->whereNumber('operation')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('Operation not found'));
+    Route::get('/operations/detail/{operation}', 'operationDetail')->whereNumber('operation')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('Operation not found'));
 
     Route::post('/operations/fridge/{fridge:id}/new', 'createOperation')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge for create operation not found'));
 });

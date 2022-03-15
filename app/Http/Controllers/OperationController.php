@@ -20,7 +20,7 @@ class OperationController extends Controller
         if ( $request->user()->tokenCan('role-admin') )
             return ShortResponse::json(true, 'All users operation retrieved...', Operation::all());
 
-        return ShortResponse::json(true, 'All operations are retrieved...', $request->user()->operations );
+        return ShortResponse::json(true, 'All operations are retrieved...', $request->user()->operations()->with('fridge')->get() );
     }
 
     public function byUserId (Request $request, User $user): JsonResponse
@@ -33,10 +33,10 @@ class OperationController extends Controller
 
     public function operationDetail (Request $request, Operation $operation): JsonResponse
     {
-        if( $request->user()->id != $operation->user()->id and !$request->user()->tokenCan('role-admin') )
+        if( $request->user() != $operation->user() and !$request->user()->tokenCan('role-admin') )
             return ShortResponse::json(false, 'Trying to change other user information', [], 403);
 
-        return ShortResponse::json(true, 'All operations include product info are retrieved', $operation->products()->get());
+        return ShortResponse::json(true, 'All operations include product info are retrieved', $operation->products()->get() );
     }
 
     public function createOperation (Request $request, Fridge $fridge): JsonResponse
