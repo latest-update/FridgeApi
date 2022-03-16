@@ -32,7 +32,7 @@ class Login
         }
 
         userToken::where('tokenable_id', $user->id)->delete();
-        $response['token'] = $user->createToken($user->login, [$role])->plainTextToken;
+        $response['token'] = $user->createToken('old', [$role])->plainTextToken;
         $response['info'] = $user;
 
         $user->remember_token = $response['token'];
