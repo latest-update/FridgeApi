@@ -33,7 +33,7 @@ class OperationController extends Controller
 
     public function operationDetail (Request $request, Operation $operation): JsonResponse
     {
-        if( $request->user() != $operation->user() and !$request->user()->tokenCan('role-admin') )
+        if( $request->user()->id != $operation->user()->id and !$request->user()->tokenCan('role-admin') )
             return ShortResponse::json(false, 'Trying to change other user information', [], 403);
 
         return ShortResponse::json(true, 'All operations include product info are retrieved', $operation->products()->get() );
