@@ -25,17 +25,10 @@ class UserController extends Controller
         return ShortResponse::json(true, 'User by id retrieved', $userid);
     }
 
-    public function userByLogin (User $user): JsonResponse
-    {
-        return ShortResponse::json(true, 'User by login retrieved', $user);
-    }
-
     public function register (Request $request): JsonResponse
     {
         $data = $request->validate([
             'name' => 'required|string|min:2|max:50',
-            'surname' => 'required|string|min:2|max:50',
-            'login' => 'required|string|unique:users,login|min:4|max:32',
             'phone_number' => 'required|string|unique:users,phone_number|min:10|max:13',
             'email' => 'required|email|unique:users,email',
             'password' => ['required', Password::min(8)]
@@ -43,7 +36,7 @@ class UserController extends Controller
         $data['password'] = bcrypt($data['password']);
         $user = User::create($data);
 
-        $response['token'] = $user->createToken($user->login, ['role-user'])->plainTextToken;
+        $response['token'] = $user->createToken('Old', ['role-user'])->plainTextToken;
         $response['info'] = $user;
 
         $user->remember_token = $response['token'];
@@ -54,10 +47,10 @@ class UserController extends Controller
 
     public function login (Request $request): JsonResponse
     {
-        if( Auth::attempt(['login' => $request->login, 'password' => $request->password ]) ){
+        if( Auth::attempt(['email' => $request->email, 'password' => $request->password ]) ){
             return Login::in(Auth::user());
         }
-        return ShortResponse::json(false, 'Not correct login / password', [], 201);
+        return ShortResponse::json(false, 'Not correct email / password', [], 201);
     }
 
     public function editRole (Request $request, User $user): JsonResponse
@@ -77,8 +70,6 @@ class UserController extends Controller
 
         $data = $request->validate([
             'name' => 'nullable|string|min:2|max:50',
-            'surname' => 'nullable|string|min:2|max:50',
-            'login' => 'nullable|string|unique:users,login|min:4|max:32',
             'phone_number' => 'nullable|string|unique:users,phone_number|min:10|max:13',
             'email' => 'nullable|email|unique:users,email',
         ]);
