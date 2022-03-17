@@ -47,7 +47,8 @@ Route::controller(RoleController::class)->group(function () {
 
 // User Routing
 Route::controller(UserController::class)->group(function () {
-    Route::get('/users', 'users')->middleware('auth:sanctum');
+    Route::get('/users', 'users')->middleware('auth:sanctum', 'ability:role-admin');
+    Route::get('/users/me', 'getSelf')->middleware('auth:sanctum');
     Route::get('/users/{userid:id}', 'userById')->whereNumber('userid')->middleware('auth:sanctum', 'ability:role-admin')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::post('/users/register', 'register');
     Route::post('/users/login', 'login');
@@ -130,5 +131,7 @@ Route::controller(OperationController::class)->group(function () {
     Route::get('/operations/detail/{operation}', 'operationDetail')->whereNumber('operation')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('Operation not found'));
 
     Route::post('/operations/fridge/{fridge:id}/new', 'createOperation')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge for create operation not found'));
+
+    Route::post('/operations/temp/{fridge}', 'setUserForFridge')->whereNumber('fridge')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('Fridge for set operation not found'));
 });
 

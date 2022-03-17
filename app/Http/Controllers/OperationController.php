@@ -103,4 +103,15 @@ class OperationController extends Controller
 
         return ShortResponse::json(true, 'Ok', []);
     }
+
+
+    public function setUserForFridge (Request $request, Fridge $fridge): JsonResponse
+    {
+        $data = $request->validate([
+            'userId_open' => 'required|integer|exists:users,id'
+        ]);
+
+        return ShortResponse::json(true, 'Set user for creating order', $fridge->update($data));
+    }
+
 }

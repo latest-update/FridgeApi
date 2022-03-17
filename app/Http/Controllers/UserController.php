@@ -20,6 +20,11 @@ class UserController extends Controller
         return ShortResponse::json(true, 'User information retrieved',  $request->user());
     }
 
+    public function getSelf (Request $request): JsonResponse
+    {
+        return ShortResponse::json(true, 'Information about user has received', $request->user());
+    }
+
     public function userById (Request $request, User $userid): JsonResponse
     {
         return ShortResponse::json(true, 'User by id retrieved', $userid);
@@ -66,7 +71,7 @@ class UserController extends Controller
     public function update (Request $request, User $user): JsonResponse
     {
         if( $request->user()->id != $user->id and !$request->user()->tokenCan('role-admin') )
-            return ShortResponse::json(false, 'Trying to change other user information', [], 403);
+            return ShortResponse::json(false, 'Not found', [], 403);
 
         $data = $request->validate([
             'name' => 'nullable|string|min:2|max:50',
@@ -82,7 +87,7 @@ class UserController extends Controller
     public function changePassword (Request $request, User $user): JsonResponse
     {
         if( $request->user()->id != $user->id )
-            return ShortResponse::json(false, 'Trying to change other user information', [], 403);
+            return ShortResponse::json(false, 'Not found', [], 403);
 
         $data = $request->validate([
             'old_password' => ['required', Password::min(8)],
@@ -101,7 +106,7 @@ class UserController extends Controller
     public function delete (Request $request, int $id): JsonResponse
     {
         if( $request->user()->id != $id and !$request->user()->tokenCan('ability:role-admin') )
-            return ShortResponse::json(false, 'Trying to delete other user', [], 403);
+            return ShortResponse::json(false, 'Not found', [], 403);
 
         return ShortResponse::delete(new User(), $id);
     }
