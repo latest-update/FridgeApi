@@ -47,11 +47,12 @@ class OperationController extends Controller
          *
          */
         $purchase = $request->validate([
-            '*.product_id' => 'required|integer',
-            '*.fridge_id' => ['required', 'integer', Rule::in([$fridge->id])],
-            '*.count' => 'required|integer'
+            'data.*.product_id' => 'required|integer',
+            'data.*.fridge_id' => ['required', 'integer', Rule::in([$fridge->id])],
+            'data.*.count' => 'required|integer'
         ]);
-        $purchase = collect($purchase);
+        $purchase = collect($purchase['data']);
+
         $fridgeProducts = $purchase->map(fn($item) => $item['product_id']);
         $products = Product::select('id', 'cost')->whereIn('id', $fridgeProducts)->get()->keyBy('id');
         $fridgeProducts = $fridge->warehouse()->whereIn('product_id', $fridgeProducts)->get()->keyBy('product_id');
@@ -80,7 +81,7 @@ class OperationController extends Controller
         })->sum();
 
         $operation = Operation::create([
-            'user_id' => $fridge->userId_open,
+            'user_id' => $request->user_id,
             'fridge_id' => $fridge->id,
             'time' => now()->format('Y-m-d H:i:s'),
             'purchased_price' => $purchase_price
@@ -95,23 +96,10 @@ class OperationController extends Controller
         });
         Purchased_product::upsert($purchase->toArray(), []);
 
-        $fridge->userId_open = null;
-        $fridge->save();
-
         $data = Warehouse::upsert($remainInFridge->toArray(), ['product_id', 'fridge_id'], ['count']);
         $fridge->warehouse()->where('count', '<=', 0)->delete();
 
         return ShortResponse::json(true, 'Ok', []);
-    }
-
-
-    public function setUserForFridge (Request $request, Fridge $fridge): JsonResponse
-    {
-        $data = $request->validate([
-            'userId_open' => 'required|integer|exists:users,id'
-        ]);
-
-        return ShortResponse::json(true, 'Set user for creating order', $fridge->update($data));
     }
 
 }

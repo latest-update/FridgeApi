@@ -131,7 +131,5 @@ Route::controller(OperationController::class)->group(function () {
     Route::get('/operations/detail/{operation}', 'operationDetail')->whereNumber('operation')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('Operation not found'));
 
     Route::post('/operations/fridge/{fridge:id}/new', 'createOperation')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge for create operation not found'));
-
-    Route::post('/operations/temp/{fridge}', 'setUserForFridge')->whereNumber('fridge')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('Fridge for set operation not found'));
 });
 
