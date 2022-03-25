@@ -17,7 +17,6 @@ class Fridge extends Model
 
     protected $fillable = [
         'name',
-        'userId_open',
         'location_id',
         'mode_id',
         'token'
