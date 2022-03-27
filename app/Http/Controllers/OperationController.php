@@ -18,7 +18,7 @@ class OperationController extends Controller
     public function index (Request $request): JsonResponse
     {
         if ( $request->user()->tokenCan('role-admin') )
-            return ShortResponse::json(true, 'All users operation retrieved...', Operation::all());
+            return ShortResponse::json(true, 'All users operation retrieved...', Operation::query()->with('fridge')->get());
 
         return ShortResponse::json(true, 'All operations are retrieved...', $request->user()->operations()->with('fridge')->get() );
     }
