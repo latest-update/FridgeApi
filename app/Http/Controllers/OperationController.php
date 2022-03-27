@@ -18,7 +18,7 @@ class OperationController extends Controller
     public function index (Request $request): JsonResponse
     {
         if ( $request->user()->tokenCan('role-admin') )
-            $data = Operation::query()->with('fridge:id,name')->get();
+            $data = Operation::query()->with(['fridge:id,name'])->get();
         else
             $data = $request->user()->operations()->with(['fridge:id,name'])->get();
 
