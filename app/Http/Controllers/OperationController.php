@@ -18,15 +18,21 @@ class OperationController extends Controller
     public function index (Request $request): JsonResponse
     {
         if ( $request->user()->tokenCan('role-admin') )
-            return ShortResponse::json(true, 'All users operation retrieved...', Operation::query()->with('fridge')->get());
+            $data = Operation::query()->with('fridge:id,name')->get();
+        else
+            $data = $request->user()->operations()->with(['fridge:id,name'])->get();
 
-        return ShortResponse::json(true, 'All operations are retrieved...', $request->user()->operations()->with('fridge')->get() );
+        foreach ($data as $item) {
+            $item['fridge_name'] = $item['fridge']['name'];
+            unset($item['fridge']);
+        }
+        return ShortResponse::json(true, 'All operations are retrieved...', $data );
     }
 
     public function byUserId (Request $request, User $user): JsonResponse
     {
         if( $request->user()->id != $user->id and !$request->user()->tokenCan('role-admin') )
-            return ShortResponse::json(false, 'Trying to get other user information', [], 403);
+            return ShortResponse::json(false, 'Unauthenticated', [], 403);
 
         return ShortResponse::json(true, 'All operations by user are retrieved', $user->operations()->get());
     }
@@ -36,7 +42,10 @@ class OperationController extends Controller
         if( $request->user()->id != $operation->user_id and !$request->user()->tokenCan('role-admin') )
             return ShortResponse::json(false, 'Trying to change other user information', [], 403);
 
-        return ShortResponse::json(true, 'All operations include product info are retrieved', $operation->products()->get() );
+        $operation['items'] = $operation->products()->get();
+        $operation['fridge'] = $operation->fridge()->with('location')->get()[0];
+
+        return ShortResponse::json(true, 'All operations include product info are retrieved', $operation);
     }
 
     public function createOperation (Request $request, Fridge $fridge): JsonResponse

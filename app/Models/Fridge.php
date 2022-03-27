@@ -22,6 +22,10 @@ class Fridge extends Model
         'token'
     ];
 
+    protected $hidden = [
+        'token'
+    ];
+
     public function location() : BelongsTo
     {
         return $this->belongsTo(Location::class);
