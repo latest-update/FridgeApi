@@ -11,11 +11,7 @@ class ShortResponse
 {
     public static function json(bool $status, string $message, $data, int $statusCode = 200): JsonResponse
     {
-        return response()->json([
-            'status' => $status,
-            'message' => $message,
-            'data' => $data
-        ], $statusCode);
+        return response()->json($data, $statusCode);
     }
 
     public static function update(Model $model, int $id, $data): JsonResponse
