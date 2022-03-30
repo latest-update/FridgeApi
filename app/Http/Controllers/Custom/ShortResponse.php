@@ -48,7 +48,7 @@ class ShortResponse
     {
         return response()->json([
             'status' => false,
-            'errors' => $error
+            'message' => $error
         ], 404);
     }
 
