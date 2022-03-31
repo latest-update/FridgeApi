@@ -15,8 +15,8 @@ class CreateOperationsTable extends Migration
     {
         Schema::create('operations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unsigned();
-            $table->foreignId('fridge_id')->unsigned();
+            $table->uuid('user_id')->index();
+            $table->uuid('fridge_id')->index();
             $table->dateTime('time');
             $table->integer('purchased_price');
 

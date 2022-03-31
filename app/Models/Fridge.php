@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Custom\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,19 +12,23 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Fridge extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     public $timestamps = false;
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'name',
         'location_id',
         'mode_id',
-        'token'
+        'tfid'
     ];
 
     protected $hidden = [
-        'token'
+        'tfid'
     ];
 
     public function location() : BelongsTo

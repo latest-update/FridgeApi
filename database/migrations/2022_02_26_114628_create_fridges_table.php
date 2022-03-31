@@ -14,11 +14,11 @@ class CreateFridgesTable extends Migration
     public function up()
     {
         Schema::create('fridges', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->unique()->primary();
             $table->string('name');
             $table->foreignId('location_id')->unique()->unsigned();                //     when errors with migration occurs
             $table->foreignId('mode_id')->default(3)->unsigned();          //           check there
-            $table->string('token')->nullable();
+            $table->string('tfid', 64)->unique()->nullable();
 
             $table->foreign('location_id')->references('id')->on('locations')->onDelete('cascade');
             $table->foreign('mode_id')->references('id')->on('modes');

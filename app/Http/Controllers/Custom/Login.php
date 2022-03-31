@@ -12,23 +12,10 @@ class Login
 {
     public static function in(User $user): JsonResponse
     {
-        switch ($user->role_id) {
-            case 1:
-                $role = 'role-user';
-                break;
-            case 2:
-                $role = 'role-admin';
-                break;
-            case 3:
-                $role = 'role-employer';
-                break;
-            default:
-                $role = 'role-user';
-        }
-
         UserToken::where('tokenable_id', $user->id)->delete();
-        $response['token'] = $user->createToken('old', [ $role ])->plainTextToken;
-        $response['info'] = $user;
+        $response['token'] = $user->createToken('old', [ $user->role->permission ])->plainTextToken;
+        $response['info'] = $user->with(['role:id,name'])->get()[0];
+        unset($response['info']['role_id']);
 
         $user->remember_token = $response['token'];
         $user->save();

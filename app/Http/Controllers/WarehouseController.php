@@ -26,7 +26,7 @@ class WarehouseController extends Controller
     {
         $data = $request->validate([
             '*.product_id' => 'required|integer',
-            '*.fridge_id' => 'required|integer',
+            '*.fridge_id' => 'required|string',
             '*.count' => 'required|integer'
         ]);
 
@@ -41,7 +41,7 @@ class WarehouseController extends Controller
             $fridge->warehouse()->where('count', '<=', 0)->delete();
             return ShortResponse::json(['message' => 'Fridge warehouse was updated']);
         } catch (QueryException $exception) {
-            return ShortResponse::errorMessage('Something goes wrong', 409);
+            return ShortResponse::errorMessage($exception, 409);
         }
     }
 

@@ -37,14 +37,9 @@ class UserController extends Controller
         ]);
         $data['password'] = bcrypt($data['password']);
         $user = User::create($data);
+        $user->role_id = 1;
 
-        $response['token'] = $user->createToken('Old', ['role-user'])->plainTextToken;
-        $response['info'] = $user;
-
-        $user->remember_token = $response['token'];
-        $user->save();
-
-        return ShortResponse::json($response, 201);
+        return Login::in($user);
     }
 
     public function login (Request $request): JsonResponse
@@ -52,7 +47,7 @@ class UserController extends Controller
         if( Auth::attempt(['email' => $request->email, 'password' => $request->password ]) )
             return Login::in( Auth::user() );
 
-        return ShortResponse::json(['message' => 'Invalid login or password '], 201);
+        return ShortResponse::json(['message' => 'Invalid login or password'], 201);
     }
 
     public function editRole (Request $request, User $user): JsonResponse

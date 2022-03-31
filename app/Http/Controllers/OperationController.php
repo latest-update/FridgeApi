@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class OperationController extends Controller
@@ -62,6 +63,11 @@ class OperationController extends Controller
         if ( $user == null or $fridge == null )
             return ShortResponse::errorMessage('User or fridge not found');
 
+        if ( $fridge->mode_id != 1 )
+            return ShortResponse::errorMessage('Fridge not active for purchase');
+
+        if ( $fridge->tfid != $request->tfid )
+            return ShortResponse::errorMessage('Invalid TemporaryFridgeID');
         /*
          *
          * Computing fridge warehouse and difference
@@ -69,7 +75,6 @@ class OperationController extends Controller
          */
         $purchase = $request->validate([
             'data.*.product_id' => 'required|integer',
-            'data.*.fridge_id' => ['required', 'integer', Rule::in([$request->fridge_id])],
             'data.*.count' => 'required|integer'
         ]);
         $purchase = collect($purchase['data']);
@@ -80,10 +85,10 @@ class OperationController extends Controller
 
         $purchase = $purchase->keyBy('product_id');
 
-        $remainInFridge = $fridgeProducts->map(function ($item, $key) use ($purchase) {
+        $remainInFridge = $fridgeProducts->map(function ($item, $key) use ($purchase, $fridge) {
             return [
                 'product_id' => $item['product_id'],
-                'fridge_id' => $item['fridge_id'],
+                'fridge_id' => $fridge->id,
                 'count' => $item['count'] - $purchase[$key]['count']
             ];
         });
@@ -120,7 +125,10 @@ class OperationController extends Controller
         Warehouse::upsert($remainInFridge->toArray(), ['product_id', 'fridge_id'], ['count']);
         $fridge->warehouse()->where('count', '<=', 0)->delete();
 
-        return ShortResponse::json(['message' => 'Order created successfully', 'order_id' => $operation->id, 'price' => $purchase_price]);
+        $fridge->tfid = Str::random(64);
+        $fridge->save();
+
+        return ShortResponse::json(['message' => 'Order created successfully', 'order_id' => $operation->id, 'price' => $purchase_price, 'tfid' => $fridge->tfid]);
     }
 
 }

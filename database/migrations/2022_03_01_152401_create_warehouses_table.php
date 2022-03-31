@@ -16,7 +16,7 @@ class CreateWarehousesTable extends Migration
         Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->unsigned();
-            $table->foreignId('fridge_id')->unsigned();
+            $table->uuid('fridge_id')->index();
             $table->integer('count');
 
             $table->unique(['product_id', 'fridge_id']);
