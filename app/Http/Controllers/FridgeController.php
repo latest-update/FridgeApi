@@ -11,22 +11,22 @@ class FridgeController extends Controller
 {
     public function index (): JsonResponse
     {
-        return ShortResponse::json(true, 'Fridges are retrieved...', Fridge::all());
+        return ShortResponse::json(Fridge::all());
     }
 
     public function withLocation(): JsonResponse
     {
-        return ShortResponse::json(true, 'Fridges with locations are retrieved...', Fridge::with(['location', 'mode'])->get());
+        return ShortResponse::json(Fridge::with(['location', 'mode'])->get());
     }
 
     public function fridgeById (Fridge $fridge): JsonResponse
     {
-        return ShortResponse::json(true, 'Fridge are retrieved...', $fridge);
+        return ShortResponse::json($fridge);
     }
 
     public function byLocationId (Fridge $fridge): JsonResponse
     {
-        return ShortResponse::json(true, 'Fridge are retrieved...', $fridge);
+        return ShortResponse::json($fridge);
     }
 
     public function create (Request $request): JsonResponse
@@ -37,8 +37,9 @@ class FridgeController extends Controller
             'mode_id' => 'required|integer',
             'token' => 'required|string|min:1|max:255'
         ]);
+        $data = Fridge::create($data);
 
-        return ShortResponse::json(true, 'Fridge created!', Fridge::create($data), 201);
+        return ShortResponse::json(['message' => 'Fridge was created', 'created_id' => $data->id], 201);
     }
 
     public function update (Request $request, Fridge $fridge): JsonResponse
@@ -51,12 +52,12 @@ class FridgeController extends Controller
         ]);
 
         $fridge->update($data);
-        return ShortResponse::json(true, 'Fridge updated', $fridge);
+        return ShortResponse::json(['message' => 'Fridge was updated']);
     }
 
     public function delete (Request $request, Fridge $fridge): JsonResponse
     {
         $fridge->delete();
-        return ShortResponse::json(true, 'Fridge was deleted', $fridge);
+        return ShortResponse::json(['message' => 'Fridge was deleted']);
     }
 }

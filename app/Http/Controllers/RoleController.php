@@ -6,18 +6,19 @@ use App\Http\Controllers\Custom\ShortResponse;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 
 class RoleController extends Controller
 {
 
     public function roles (): JsonResponse
     {
-        return ShortResponse::json(true, 'Roles retrieved...', Role::all());
+        return ShortResponse::json(Role::all());
     }
 
     public function usersByRole (Role $role): JsonResponse
     {
-        return ShortResponse::json(true, 'Users by roles retrieved...', $role->users);
+        return ShortResponse::json($role->users);
     }
 
     public function create (Request $request): JsonResponse
@@ -26,7 +27,8 @@ class RoleController extends Controller
             'name' => 'required|string|max:255',
             'access_level' => 'required|integer|min:1|max:200'
         ]);
-        return ShortResponse::json(true, 'Role created!', Role::create($data), 201);
+        $role = Role::create($data);
+        return ShortResponse::json(['message' => 'Role was created', 'created_id' => $role->id], 201);
     }
 
     public function update (Request $request, Role $role): JsonResponse
@@ -37,13 +39,16 @@ class RoleController extends Controller
         ]);
 
         $role->update($data);
-        return ShortResponse::json(true, 'Role updated', $role);
-
+        return ShortResponse::json(['message' => 'Role was updated']);
     }
 
-    public function delete (int $id) : JsonResponse
+    public function delete (Role $role) : JsonResponse
     {
-        return ShortResponse::delete(new Role(), $id);
+        if( App::environment('production') )
+            return ShortResponse::errorMessage('Can\'t delete in production');
+
+        $role->delete();
+        return ShortResponse::json(['message' => 'Role was deleted']);
     }
 
 }

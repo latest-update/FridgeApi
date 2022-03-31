@@ -11,12 +11,12 @@ class ProductController extends Controller
 {
     public function index (): JsonResponse
     {
-        return ShortResponse::json(true, 'Products are retrieved...', Product::all());
+        return ShortResponse::json(Product::all());
     }
 
     public function productById(Product $product): JsonResponse
     {
-        return ShortResponse::json(true, 'Product are retrieved...', $product);
+        return ShortResponse::json($product);
     }
 
     public function create (Request $request): JsonResponse
@@ -29,8 +29,8 @@ class ProductController extends Controller
             'cost' => 'required|integer',
             'image' => 'nullable|string'
         ]);
-
-        return ShortResponse::json(true, 'Product created!', Product::create($data), 201);
+        $product = Product::create($data);
+        return ShortResponse::json(['message' => 'Product was created', 'created_id' => $product->id], 201);
     }
 
     public function update (Request $request, Product $product): JsonResponse
@@ -45,12 +45,12 @@ class ProductController extends Controller
         ]);
 
         $product->update($data);
-        return ShortResponse::json(true, 'Product updated', $product);
+        return ShortResponse::json(['message' => 'Product was updated']);
     }
 
     public function delete (Request $request, Product $product): JsonResponse
     {
         $product->delete();
-        return ShortResponse::json(true, 'Product was deleted', $product);
+        return ShortResponse::json(['message' => 'Product was deleted']);
     }
 }

@@ -6,17 +6,18 @@ use App\Http\Controllers\Custom\ShortResponse;
 use App\Models\Mode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 
 class ModeController extends Controller
 {
     public function index (): JsonResponse
     {
-        return ShortResponse::json(true, 'Modes are retrieved...', Mode::all());
+        return ShortResponse::json(Mode::all());
     }
 
     public function allFridgeByMode (int $id): JsonResponse
     {
-        return ShortResponse::json(true, 'All fridges by mode are retrieved...', Mode::find($id)->fridges);
+        return ShortResponse::json(Mode::find($id)->fridges);
     }
 
     public function create (Request $request): JsonResponse
@@ -24,8 +25,8 @@ class ModeController extends Controller
         $data = $request->validate([
             'mode' => 'required|string|max:255|unique:modes,mode'
         ]);
-
-        return ShortResponse::json(true, 'Mode created!', Mode::create($data), 201);
+        $mode = Mode::create($data);
+        return ShortResponse::json(['message' => 'Mode was created', 'created_id' => $mode->id], 201);
     }
 
     public function update (Request $request, Mode $mode): JsonResponse
@@ -35,13 +36,16 @@ class ModeController extends Controller
         ]);
 
         $mode->update($data);
-        return ShortResponse::json(true, 'Mode updated', $mode);
+        return ShortResponse::json(['message' => 'Mode was updated']);
     }
 
     public function delete (Request $request, Mode $mode): JsonResponse
     {
+        if( App::environment('production') )
+            return ShortResponse::errorMessage('Can\'t delete in production');
+
         $mode->delete();
-        return ShortResponse::json(true, 'Mode was deleted', $mode);
+        return ShortResponse::json(['message' => 'Mode was deleted']);
     }
 
 }

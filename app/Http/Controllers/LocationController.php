@@ -12,18 +12,17 @@ class LocationController extends Controller
 {
     public function index (): JsonResponse
     {
-        return ShortResponse::json(true, 'Locations are retrieved...', Location::all());
+        return ShortResponse::json(Location::all());
     }
 
     public function withFridge (): JsonResponse
     {
-        return ShortResponse::json(true, 'Locations with fridges are retrieved...', Location::with('fridge')->get());
+        return ShortResponse::json(Location::with('fridge')->get());
     }
 
     public function locationByCity (string $city): JsonResponse
     {
-        return ShortResponse::json(true, 'Location by city retrieved...',
-            Location::select('id', 'city', 'district', 'name', 'coordinates')
+        return ShortResponse::json(Location::select('id', 'city', 'district', 'name', 'coordinates')
             ->where('city', $city)
             ->get()
             ->toArray()
@@ -39,8 +38,9 @@ class LocationController extends Controller
             'latitude' => 'required|string|max:255',
             'longitude' => 'required|string|max:255'
         ]);
+        $location = Location::create($data);
 
-        return ShortResponse::json(true, 'Role created!', Location::create($data), 201);
+        return ShortResponse::json(['message' => 'Location was created', 'created_id' => $location->id], 201);
     }
 
     public function update (Request $request, Location $location): JsonResponse
@@ -54,13 +54,13 @@ class LocationController extends Controller
         ]);
 
         $location->update($data);
-        return ShortResponse::json(true, 'Location updated', $location);
+        return ShortResponse::json(['message' => 'Location was updated']);
     }
 
     public function delete (Request $request, Location $location): JsonResponse
     {
         $location->delete();
-        return ShortResponse::json(true, 'Location was deleted', $location);
+        return ShortResponse::json(['message' => 'Location was deleted']);
     }
 
 }

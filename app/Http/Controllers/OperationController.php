@@ -26,30 +26,42 @@ class OperationController extends Controller
             $item['fridge_name'] = $item['fridge']['name'];
             unset($item['fridge']);
         }
-        return ShortResponse::json(true, 'All operations are retrieved...', $data );
+        return ShortResponse::json($data);
     }
 
     public function byUserId (Request $request, User $user): JsonResponse
     {
         if( $request->user()->id != $user->id and !$request->user()->tokenCan('role-admin') )
-            return ShortResponse::json(false, 'Unauthenticated', [], 403);
+            return ShortResponse::json(['message' => 'Not found'], 403);
 
-        return ShortResponse::json(true, 'All operations by user are retrieved', $user->operations()->get());
+        return ShortResponse::json($user->operations()->get());
     }
 
     public function operationDetail (Request $request, Operation $operation): JsonResponse
     {
         if( $request->user()->id != $operation->user_id and !$request->user()->tokenCan('role-admin') )
-            return ShortResponse::json(false, 'Trying to change other user information', [], 403);
+            return ShortResponse::json(['message' => 'Not found'], 403);
 
         $operation['items'] = $operation->products()->get();
         $operation['fridge'] = $operation->fridge()->with('location')->get()[0];
 
-        return ShortResponse::json(true, 'All operations include product info are retrieved', $operation);
+        return ShortResponse::json($operation);
     }
 
-    public function createOperation (Request $request, Fridge $fridge): JsonResponse
+    public function createOperation (Request $request): JsonResponse
     {
+        /*
+         *
+         *  Validate data before init purchased products
+         *
+         */
+
+        $user = User::find($request->user_id);
+        $fridge = Fridge::find($request->fridge_id);
+
+        if ( $user == null or $fridge == null )
+            return ShortResponse::errorMessage('User or fridge not found');
+
         /*
          *
          * Computing fridge warehouse and difference
@@ -57,7 +69,7 @@ class OperationController extends Controller
          */
         $purchase = $request->validate([
             'data.*.product_id' => 'required|integer',
-            'data.*.fridge_id' => ['required', 'integer', Rule::in([$fridge->id])],
+            'data.*.fridge_id' => ['required', 'integer', Rule::in([$request->fridge_id])],
             'data.*.count' => 'required|integer'
         ]);
         $purchase = collect($purchase['data']);
@@ -91,7 +103,7 @@ class OperationController extends Controller
 
         $operation = Operation::create([
             'user_id' => $request->user_id,
-            'fridge_id' => $fridge->id,
+            'fridge_id' => $request->fridge_id,
             'time' => now()->format('Y-m-d H:i:s'),
             'purchased_price' => $purchase_price
         ]);
@@ -105,10 +117,10 @@ class OperationController extends Controller
         });
         Purchased_product::upsert($purchase->toArray(), []);
 
-        $data = Warehouse::upsert($remainInFridge->toArray(), ['product_id', 'fridge_id'], ['count']);
+        Warehouse::upsert($remainInFridge->toArray(), ['product_id', 'fridge_id'], ['count']);
         $fridge->warehouse()->where('count', '<=', 0)->delete();
 
-        return ShortResponse::json(true, 'Ok', []);
+        return ShortResponse::json(['message' => 'Order created successfully', 'order_id' => $operation->id, 'price' => $purchase_price]);
     }
 
 }

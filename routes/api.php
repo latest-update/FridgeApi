@@ -39,10 +39,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Roles Routing
 Route::controller(RoleController::class)->group(function () {
     Route::get('/roles', 'roles');
-    Route::get('/roles/{role:name}', 'usersByRole')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::json(false, 'Role not found', Role::all()));
+    Route::get('/roles/{role:name}', 'usersByRole')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::json(Role::all()));
     Route::post('/roles/new', 'create')->middleware('auth:sanctum', 'abilities:role-admin');
-    Route::patch('/roles/{role}', 'update')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::json(false, 'Role not found', Role::all()));
-    Route::delete('/roles/{id}', 'delete')->middleware('auth:sanctum', 'abilities:role-admin');
+    Route::patch('/roles/{role}', 'update')->whereNumber('role')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::json(Role::all()));
+    Route::delete('/roles/{role}', 'delete')->whereNumber('role')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::errorMessage('Role not found'));
 });
 
 // User Routing
@@ -55,7 +55,7 @@ Route::controller(UserController::class)->group(function () {
     Route::patch('/users/{user:id}/role', 'editRole')->whereNumber('user')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::patch('/users/{user:id}/edit', 'update')->whereNumber('user')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::patch('/users/{user:id}/password', 'changePassword')->whereNumber('user')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('User not found'));
-    Route::delete('/users/{id}', 'delete')->whereNumber('id')->middleware('auth:sanctum');
+    Route::delete('/users/{user:id}', 'delete')->whereNumber('user')->middleware('auth:sanctum');
 });
 
 /*
@@ -111,7 +111,7 @@ Route::controller(ProductController::class)->group(function () {
     Route::get('/products/{product}', 'productById')->whereNumber('product')->missing(fn() => ShortResponse::errorMessage('Product not found'));
     Route::post('/products', 'create')->middleware('auth:sanctum', 'abilities:role-admin');
     Route::patch('/products/{product}', 'update')->whereNumber('product')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::errorMessage('Product not found'));
-    Route::delete('/product{product}', 'delete')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::errorMessage('Product not found'));;
+    Route::delete('/products/{product}', 'delete')->whereNumber('product')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::errorMessage('Product not found'));
 });
 
 // Fridge warehouse
@@ -119,7 +119,7 @@ Route::controller(WarehouseController::class)->group(function () {
     Route::get('/warehouse/{fridge:id}', 'index')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
     Route::get('/warehouse/{fridge:id}/info', 'indexIncludeInfo')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
 
-    Route::post('/warehouse/', 'create');
+    Route::post('/warehouse', 'create');
 
 // Do comment route below in production mode
     Route::delete('/warehouse/{fridge:id}/fresh', 'fresh')->whereNumber('fridge')->middleware('auth:sanctum', 'abilities:role-admin')->missing(fn() => ShortResponse::errorMessage('Fridge or Warehouse not found'));
@@ -130,6 +130,6 @@ Route::controller(OperationController::class)->group(function () {
     Route::get('/operations/user/{user:id}', 'byUserId')->whereNumber('user')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::get('/operations/detail/{operation}', 'operationDetail')->whereNumber('operation')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('Operation not found'));
 
-    Route::post('/operations/fridge/{fridge:id}/new', 'createOperation')->whereNumber('fridge')->missing(fn() => ShortResponse::errorMessage('Fridge for create operation not found'));
+    Route::post('/operations/fridge/new', 'createOperation');
 });
 
