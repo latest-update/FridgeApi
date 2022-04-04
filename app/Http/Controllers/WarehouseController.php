@@ -24,20 +24,34 @@ class WarehouseController extends Controller
 
     public function create (Request $request): JsonResponse
     {
+
+        $fridge = Fridge::find($request->fridge_id);
+
+        if ( $fridge == null )
+            return ShortResponse::errorMessage('Fridge not found');
+
+        if( $fridge->tfid != $request->tfid)
+            return ShortResponse::errorMessage('Invalid fridge address (TFID)', 400);
+
+
         $data = $request->validate([
-            '*.product_id' => 'required|integer',
-            '*.fridge_id' => 'required|string',
-            '*.count' => 'required|integer'
+            'data.*.product_id' => 'required|integer|exists:App\Models\Product,id',
+            'data.*.count' => 'required|integer'
         ]);
 
-        $fridge_id = $data[0]['fridge_id'];
-        $fridge = Fridge::find($fridge_id);
+        $data = collect($data['data'])->map(function ($item) use ($fridge) {
+            return [
+                'product_id' => $item['product_id'],
+                'fridge_id' => $fridge->id,
+                'count' => $item['count']
+            ];
+        });
 
         if ( $fridge->mode_id != 2)
             return ShortResponse::json(['message' => 'Fridge isn\'t in maintenance mode']);
 
         try {
-            $data = Warehouse::upsert($data, ['product_id', 'fridge_id'], ['count']);
+            $data = Warehouse::upsert($data->toArray(), ['product_id', 'fridge_id'], ['count']);
             $fridge->warehouse()->where('count', '<=', 0)->delete();
             return ShortResponse::json(['message' => 'Fridge warehouse was updated']);
         } catch (QueryException $exception) {
