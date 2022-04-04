@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Custom\ShortResponse;
 use App\Models\Fridge;
+use App\Models\Location;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -41,13 +42,13 @@ class FridgeController extends Controller
         try {
             $fridge_id = Fridge::select('id')->where('tfid', $request->tfid)->get()[0]->toArray();
         } catch (\ErrorException $exception) {
-            return ShortResponse::errorMessage('Invalid TFID or QR causes');
+            return ShortResponse::errorMessage('Invalid TFID or QR causes', 400);
         }
 
         $token = $request->user_token;
         $token = PersonalAccessToken::findToken($token);
         if ( $token == null )
-            return ShortResponse::errorMessage('Invalid User Token');
+            return ShortResponse::errorMessage('Invalid User Token', 401);
 
         $user = $token->tokenable;
 
@@ -58,9 +59,11 @@ class FridgeController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|min:1|max:255',
-            'location_id' => 'required|integer',
+            'location_id' => 'required|integer|exists:App\Models\Location,id',
             'mode_id' => 'required|integer'
         ]);
+        if ( Location::find($data['location_id'])->fridge() != null )
+            return ShortResponse::errorMessage('This location associated with other fridge', 409);
         $data['tfid'] = Str::random(64);
         $data = Fridge::create($data);
 
