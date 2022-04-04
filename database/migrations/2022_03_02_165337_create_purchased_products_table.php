@@ -16,7 +16,7 @@ class CreatePurchasedProductsTable extends Migration
         Schema::create('purchased_products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->unsigned();
-            $table->foreignId('operation_id')->unsigned();
+            $table->foreignId('operation_id')->unsigned()->unique();
             $table->integer('purchased_count');
 
             $table->foreign('product_id')->references('id')->on('products');
