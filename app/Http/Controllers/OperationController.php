@@ -113,14 +113,14 @@ class OperationController extends Controller
             'purchased_price' => $purchase_price
         ]);
 
-        $purchase = $purchase->map(function ($item, $key) use ($operation) {
+        $purchase = $purchase->map(function ($item) use ($operation) {
             return [
                 'product_id' => $item['product_id'],
                 'operation_id' => $operation->id,
                 'purchased_count' => $item['count']
             ];
         });
-        Purchased_product::upsert($purchase->toArray(), []);
+        Purchased_product::upsert($purchase->toArray(), [], ['product_id', 'operation_id', 'purchased_count']);
 
         Warehouse::upsert($remainInFridge->toArray(), ['product_id', 'fridge_id'], ['count']);
         $fridge->warehouse()->where('count', '<=', 0)->delete();
