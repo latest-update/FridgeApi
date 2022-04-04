@@ -120,7 +120,7 @@ class OperationController extends Controller
                 'purchased_count' => $item['count']
             ];
         });
-        Purchased_product::upsert($purchase->toArray(), [], ['product_id', 'operation_id', 'purchased_count']);
+        Purchased_product::upsert($purchase->toArray(), []);
 
         Warehouse::upsert($remainInFridge->toArray(), ['product_id', 'fridge_id'], ['count']);
         $fridge->warehouse()->where('count', '<=', 0)->delete();
