@@ -47,7 +47,7 @@ class UserController extends Controller
         if( Auth::attempt(['email' => $request->email, 'password' => $request->password ]) )
             return Login::in( Auth::user() );
 
-        return ShortResponse::json(['message' => 'Invalid login or password'], 201);
+        return ShortResponse::json(['message' => 'Invalid login or password'], 401);
     }
 
     public function editRole (Request $request, User $user): JsonResponse
