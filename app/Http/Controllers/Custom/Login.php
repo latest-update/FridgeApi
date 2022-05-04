@@ -17,8 +17,8 @@ class Login
         $response['info'] = $user->with(['role:id,name'])->get()[0];
         unset($response['info']['role_id']);
 
-        $user->remember_token = $response['token'];
-        $user->save();
+//        $user->remember_token = $response['token'];
+//        $user->save();
 
         return ShortResponse::json($response, 200);
     }

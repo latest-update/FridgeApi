@@ -3,14 +3,13 @@
 namespace App\Models;
 
 use App\Models\Custom\HasUuid;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable
 {
@@ -62,6 +61,13 @@ class User extends Authenticatable
     public function operations () : hasMany
     {
         return $this->hasMany(Operation::class);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $url = 'https://example.com/reset-password?token='.$token;
+
+        $this->notify(new ResetPasswordNotification($url));
     }
 
 }

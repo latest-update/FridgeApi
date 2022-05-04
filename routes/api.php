@@ -6,6 +6,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ModeController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
@@ -56,6 +57,13 @@ Route::controller(UserController::class)->group(function () {
     Route::patch('/users/{user:id}/edit', 'update')->whereUuid('user')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::patch('/users/{user:id}/password', 'changePassword')->whereUuid('user')->middleware('auth:sanctum')->missing(fn() => ShortResponse::errorMessage('User not found'));
     Route::delete('/users/{user:id}', 'delete')->whereUuid('user')->middleware('auth:sanctum');
+});
+
+// Reset password
+Route::controller(ResetPassword::class)->group(function () {
+    Route::get('/password/view', 'example')->name('password.reset');
+    Route::post('/password/forgot', 'resetLink');
+    Route::post('/reset-password', 'resetPassword');
 });
 
 /*
