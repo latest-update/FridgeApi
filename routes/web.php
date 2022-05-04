@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return 'FridgeApi V 0.1 </br></br> All rights reserved';
+    return 'FridgeApi V 1.1 </br></br> All rights reserved';
 });
