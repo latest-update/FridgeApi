@@ -19,7 +19,7 @@ class ResetPassword extends Controller
 
     public function resetLink(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'email' => 'required|email|exists:App\Models\User,email'
         ]);
 
