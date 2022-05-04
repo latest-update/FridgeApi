@@ -8,12 +8,12 @@ use App\Models\Warehouse;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class WarehouseController extends Controller
 {
     public function index (Fridge $fridge): JsonResponse
     {
+        // hello guys
         return ShortResponse::json($fridge->warehouse);
     }
 
