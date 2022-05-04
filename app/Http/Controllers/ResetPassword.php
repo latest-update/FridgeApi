@@ -46,7 +46,7 @@ class ResetPassword extends Controller
                 ]);
 
                 $user->save();
-                
+
                 $this->user = $user;
 
                 event(new PasswordReset($user));
