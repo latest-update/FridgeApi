@@ -105,7 +105,7 @@ class OperationController extends Controller
         $purchase_price = $purchase->map(function ($item, $key) use ($products) {
             return $item['count'] * $products[$key]['cost'];
         })->sum();
-        //d as sad
+        
         $operation = Operation::create([
             'user_id' => $request->user_id,
             'fridge_id' => $request->fridge_id,
