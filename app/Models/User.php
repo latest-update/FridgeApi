@@ -65,7 +65,7 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token)
     {
-        $url = 'https://example.com/reset-password?token='.$token;
+        $url = 'https://grab-it-app.web.app/reset-password?token='.$token;
 
         $this->notify(new ResetPasswordNotification($url));
     }
