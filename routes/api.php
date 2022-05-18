@@ -6,6 +6,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ModeController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\QRController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -145,3 +146,7 @@ Route::controller(OperationController::class)->group(function () {
     Route::post('/operations/fridge/new', 'createOperation');
 });
 
+Route::controller(QRController::class)->group(function () {
+    Route::get('/qr/get/{fridge:id}', 'getQR')->missing(fn() => ShortResponse::errorMessage('Fridge not found'));
+    Route::post('/qr/{fridge:tfid}', 'scanQR')->missing(fn() => ShortResponse::errorMessage('Invalid QR data'));
+});

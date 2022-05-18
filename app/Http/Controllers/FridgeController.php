@@ -66,7 +66,7 @@ class FridgeController extends Controller
         if ( Location::find($data['location_id'])->fridge != null )
             return ShortResponse::errorMessage('This location associated with other fridge', 409);
 
-        $data['tfid'] = Str::random(64);
+        $data['tfid'] = Str::random(16);
         $data = Fridge::create($data);
 
         return ShortResponse::json(['message' => 'Fridge was created', 'created_id' => $data->id], 201);

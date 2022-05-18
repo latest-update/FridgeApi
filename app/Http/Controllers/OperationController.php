@@ -123,7 +123,7 @@ class OperationController extends Controller
         Warehouse::upsert($remainInFridge->toArray(), ['product_id', 'fridge_id'], ['count']);
         $fridge->warehouse()->where('count', '<=', 0)->delete();
 
-        $fridge->tfid = Str::random(64);
+        $fridge->tfid = Str::random(16);
         $fridge->save();
 
         return ShortResponse::json(['message' => 'Order created successfully', 'order_id' => $operation->id, 'price' => $purchase_price, 'tfid' => $fridge->tfid]);
