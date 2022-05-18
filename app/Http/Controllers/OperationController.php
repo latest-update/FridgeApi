@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\CoR\Handlers\FridgeCheckHandler;
+use App\Http\Controllers\CoR\Handlers\UserCheckHandler;
 use App\Http\Controllers\Custom\ShortResponse;
 use App\Models\Fridge;
 use App\Models\Operation;
@@ -56,17 +58,14 @@ class OperationController extends Controller
          *
          */
 
-        $user = User::find($request->user_id);
-        $fridge = Fridge::find($request->fridge_id);
+        $middleware = new UserCheckHandler( $user = User::find($request->user_id) );
+        $middleware->link( new FridgeCheckHandler( $fridge = Fridge::find($request->fridge_id) ) );
 
-        if ( $user == null or $fridge == null )
-            return ShortResponse::errorMessage('User or fridge not found');
+        $middleware = $middleware->handle($request);
 
-        if ( $fridge->mode_id != 1 )
-            return ShortResponse::errorMessage('Fridge not active for purchase');
+        if( $middleware )
+            return $middleware;
 
-        if ( $fridge->tfid != $request->tfid )
-            return ShortResponse::errorMessage('Invalid TemporaryFridgeID');
         /*
          *
          * Computing fridge warehouse and difference
