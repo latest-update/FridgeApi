@@ -13,7 +13,6 @@ class WarehouseController extends Controller
 {
     public function index (Fridge $fridge): JsonResponse
     {
-        // hello guys
         return ShortResponse::json($fridge->warehouse);
     }
 

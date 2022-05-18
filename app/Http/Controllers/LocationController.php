@@ -6,7 +6,6 @@ use App\Http\Controllers\Custom\ShortResponse;
 use App\Models\Location;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class LocationController extends Controller
 {

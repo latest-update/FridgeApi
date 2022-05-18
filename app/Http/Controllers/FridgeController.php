@@ -57,9 +57,10 @@ class FridgeController extends Controller
 
     public function create (Request $request): JsonResponse
     {
+        $location = Location::find($request->location_id);
         $data = $request->validate([
             'name' => 'required|string|min:1|max:255',
-            'location_id' => 'required|integer|exists:App\Models\Location,id',
+//            'location_id' => 'required|integer|exists:App\Models\Location,id',
             'mode_id' => 'required|integer'
         ]);
         if ( Location::find($data['location_id'])->fridge != null )

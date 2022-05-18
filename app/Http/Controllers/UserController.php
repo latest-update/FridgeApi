@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Custom\Login;
 use App\Http\Controllers\Custom\ShortResponse;
+use App\Http\Controllers\Factory\UserFactory;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,6 +28,22 @@ class UserController extends Controller
         return ShortResponse::json($userid);
     }
 
+    public function registerAdmin (Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|min:2|max:50',
+            'phone_number' => 'required|string|unique:users,phone_number|min:10|max:12',
+            'email' => 'required|email|unique:users,email',
+            'password' => ['required', Password::min(8)]
+        ]);
+        $data['password'] = bcrypt($data['password']);
+
+        $admin = UserFactory::createAdmin(User::create($data));
+        $admin = $admin->attach();
+
+        return ShortResponse::json($admin);
+    }
+
     public function register (Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -36,8 +53,9 @@ class UserController extends Controller
             'password' => ['required', Password::min(8)]
         ]);
         $data['password'] = bcrypt($data['password']);
-        $user = User::create($data);
-        $user->role_id = 1;
+
+        $user = UserFactory::createUser(User::create($data));
+        $user = $user->attach();
 
         return Login::in($user);
     }
